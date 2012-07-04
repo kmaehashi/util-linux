@@ -1,0 +1,74 @@
+#!/bin/sh
+#
+# Init file for TFTP Server Daemon (in.tftpd)
+# @author Kenichi Maehashi <webmaster@kenichimaehashi.com>
+#
+# chkconfig: 2345 64 36
+# description: Starts and stops the tftpd daemon.
+# processname: in.tftpd
+# 
+### BEGIN INIT INFO
+# Provides: tftp-server
+# Required-Start:
+# Required-Stop:
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: start and stop tftp daemon
+# Description: Start and stop tftp daemon
+### END INIT INFO
+
+# Source function library.
+. /etc/init.d/functions
+
+TFTPDARGS="-l -s /var/lib/tftpboot"
+
+# pull in sysconfig settings
+[ -f /etc/sysconfig/tftpd ] && . /etc/sysconfig/tftpd
+
+RETVAL=0
+prog="tftpd"
+TFTPD=/usr/sbin/in.tftpd
+
+start() {
+    echo -n $"Starting $prog: "
+    $TFTPD $TFTPDARGS && success || failure
+    RETVAL=$?
+    echo
+    return $RETVAL
+}
+
+stop() {
+    echo -n $"Stopping $prog: "
+    killall $TFTPD > /dev/null 2>&1 && success || failure
+    RETVAL=$?
+    echo
+    return $RETVAL
+}
+
+case "$1" in
+    start)
+        start
+        RETVAL=$?
+        ;;
+    stop)
+        stop
+        RETVAL=$?
+        ;;
+    restart)
+        stop
+        sleep 1
+        start
+        RETVAL=$?
+        ;;
+    status)
+        status $TFTPD
+        RETVAL=$?
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|restart|status}"
+        RETVAL=1
+        ;;
+esac
+
+exit $RETVAL
+
