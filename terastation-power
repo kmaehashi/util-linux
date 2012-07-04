@@ -1,0 +1,49 @@
+#!/bin/sh
+
+# TeraStation Power Management Tool
+# @version 2009/02/25
+# @author Kenichi Maehashi
+
+# ================================================================ #
+# IP Address of the TeraStation to Control
+IPADDR=192.168.1.5
+
+# TeraStation User Account with the Administration Privilege
+USERNAME=admin
+
+# Password for the USERNAME (read from stdin when left blank)
+# | For automated operation (e.g., calling from crontabs), you must
+# | provide a password here.
+PASSWORD=
+# ================================================================ #
+
+RETVAL=0
+
+AUTHINFO=
+if [ "$PASSWORD" = "" ]; then
+	AUTHINFO=$USERNAME;
+else
+	AUTHINFO=$USERNAME:$PASSWORD;
+fi
+
+# See how we were called :-)
+case $1 in
+	shutdown | reboot)
+		curl -fsS -u $AUTHINFO "http://$IPADDR/cgi-bin/ts.cgi?page=maintenance&mode=shutdown&type=setup&txtClickButton=$1" > /dev/null
+		RETVAL=$?
+		;;
+	status)
+		ping -c 1 -W 1 $IPADDR > /dev/null 2>&1
+		RETVAL=$?
+		if [ $RETVAL = 0 ]; then
+			echo "TeraStation ($IPADDR) is responding..."
+		else
+			echo "TeraStation ($IPADDR) is stopped"
+		fi
+		;;
+	*)
+		echo "Usage: $0 {shutdown|reboot|status}"
+		RETVAL=1
+esac
+
+exit $RETVAL
