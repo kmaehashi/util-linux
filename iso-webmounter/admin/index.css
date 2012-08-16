@@ -1,0 +1,52 @@
+A {
+	text-decoration: none;
+}
+
+A:hover {
+	text-decoration: underline;
+}
+
+h1, h2 {
+	color: #333333;
+}
+
+img {
+	border: 0;
+	margin-right: 5px;
+}
+
+table {
+	border: 1px #e3e3e3 solid;
+	border-collapse: collapse;
+	width: 80%;
+	margin-left: 20px;
+}
+
+tr + tr + tr {
+	border: 1px #999999 dotted;
+}
+
+td {
+	font-size: 90%;
+	text-align: left;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-left: 10px;
+}
+
+th {
+	text-align: left;
+	padding-left: 10px;
+	background-color: #eeeeee;
+}
+
+hr {
+	display: none;
+}
+
+#footer {
+	color: #999999;
+	text-align: right;
+	margin: 20px;
+}
+

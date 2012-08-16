@@ -1,0 +1,13 @@
+<!doctype html>
+
+<html lang="ja">
+	<head>
+		<title>Share: <!--#echo var="REQUEST_URI" --></title>
+		<link rel="stylesheet" href="/~kenichi/admin/index.css" />
+		<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" />
+	</head>
+
+	<body>
+		<h1>Shared Storage to Web Gateway</h1>
+		<h2>Browsing: <!--#echo var="REQUEST_URI" --></h2>
+

@@ -1,0 +1,18 @@
+# Do not use sendfile(2) when re-exporting CIFS
+EnableSendfile	Off
+
+AddHandler cgi-script .cgi
+
+RewriteEngine	on
+RewriteCond	%{REQUEST_FILENAME}	-s
+RewriteCond	%{QUERY_STRING}		!download
+RewriteRule	^.+?\.iso$	/~kenichi/admin/mount-iso.cgi?$0 [L,NC]
+
+Options		+Indexes
+
+IndexOptions	FancyIndexing HTMLTable IconsAreLinks SuppressHTMLPreamble VersionSort XHTML Charset=Shift_JIS
+
+DirectoryIndex	_no_directory_index_
+HeaderName	/~kenichi/admin/HEADER.shtml
+ReadmeName	/~kenichi/admin/FOOTER.shtml
+
