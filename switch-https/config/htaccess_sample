@@ -1,0 +1,15 @@
+# LDAPS で正規の SSL 証明書を使用しない場合は、LDAPVerifyServerCert off が必要になる。
+# このディレクティブは server config コンテキスト（httpd.conf）でのみ許可される点に注意。
+
+# 非 SSL アクセスでは、HTTPS へ遷移する。
+SSLRequireSSL
+ErrorDocument 403 /switch-https
+
+# SSL アクセスでは、認証を実行する。
+AuthType                Basic
+AuthName                "Private Data"
+AuthBasicProvider       ldap
+AuthzLDAPAuthoritative  on
+AuthLDAPURL             "ldaps://ldap01.test.example.com ldap02.test.example.com/dc=test,dc=example,dc=com"
+Require                 ldap-attribute accountStatus=active
+Require                 valid-user

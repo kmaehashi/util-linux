@@ -1,0 +1,8 @@
+#!/usr/bin/perl --
+
+# ErrorDocument to SSL Redirector
+# @author Kenichi Maehashi
+
+my $location = ($ENV{'HTTPS'} ne 'on') ? 'https://' . $ENV{'HTTP_HOST'} . $ENV{'REDIRECT_URL'} : '/';
+print "Status: 301 Moved Permanently\n";
+print "Location: " . $location . "\n\n";

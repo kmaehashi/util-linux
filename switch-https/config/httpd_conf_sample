@@ -1,0 +1,42 @@
+# 誤って .htaccess によって認証を設定してしまうことを防ぐため、
+# AllowOverride を使用して AuthConfig および Limit のオーバーライドを禁止してもよいだろう。
+
+# LDAPS で正規の SSL 証明書を使用しない場合は、以下のディレクティブが必要になる。
+# このディレクティブは server config コンテキストでのみ許可される点に注意。
+LDAPVerifyServerCert off
+
+# 非 SSL アクセス時の VirtualHost 設定
+<VirtualHost *:80>
+    # ... snip ...
+
+    <Directory /home/user/public_html/private/>
+        # このディレクトリには重要な情報が格納されているため SSL でのアクセスを強制する。
+        # SSLRequireSSL が満たされない場合は ErrorDocument 403 によって HTTPS へ遷移する。
+        SSLRequireSSL
+        ErrorDocument 403 /switch-https
+    </Directory>
+</VirtualHost>
+
+# SSL アクセス時の VirtualHost 設定
+<VirtualHost *:443>
+    # ... snip ...
+
+    <Directory /home/user/public_html/private/>
+        # このディレクトリには重要な情報が格納されているため、以下のポリシーを設定する。
+        #   * 123.123.0.0/16 のネットワーク内であれば、認証不要でアクセスを許可する
+        #   * それ以外のネットワークであれば、Basic 認証を通過した場合のみアクセスを許可する。
+
+        Satisfy Any
+        Order   Deny,Allow
+        Deny    from all
+        Allow from 123.123.0.0/16
+
+        AuthType                Basic
+        AuthName                "Private Data"
+        AuthBasicProvider       ldap
+        AuthzLDAPAuthoritative  on
+        AuthLDAPURL             "ldaps://ldap01.test.example.com ldap02.test.example.com/dc=test,dc=example,dc=com"
+        Require                 ldap-attribute accountStatus=active
+        Require                 valid-user
+    </Directory>
+</VirtualHost>
