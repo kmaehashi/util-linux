@@ -1,0 +1,45 @@
+#!/bin/sh
+
+# ip-changed (ip-up or ip-down) - E-Mail Notificator
+# @author Kenichi Maehashi
+
+MAIL_TO="root"
+
+INTERFACE_NAME=${1}
+TTY_DEVICE=${2}
+SPEED=${3}
+LOCAL_IPADDR=${4}
+REMOTE_IPADDR=${5}
+IPPARAM=${6}
+
+DATE_TIME=$(date)
+HOSTNAME=$(hostname)
+
+case "${0}" in
+	*up*	) STATUS="UP" ;;
+	*down*	) STATUS="DOWN" ;;
+	*	) STATUS="Status Changed" ;;
+esac
+
+MAIL_SUBJECT="VPN ${STATUS} alert for ${HOSTNAME}!"
+cat << _EOF_ | mail -s "${MAIL_SUBJECT}" "${MAIL_TO}"
+${MAIL_SUBJECT}
+
+Status: ${STATUS}
+Host: ${HOSTNAME}
+Date/Time: ${DATE_TIME}
+
+Interface: ${INTERFACE_NAME}
+TTY Device: ${TTY_DEVICE}
+Speed: ${SPEED}
+Local IP: ${LOCAL_IPADDR}
+Remote IP: ${REMOTE_IPADDR}
+Parameter: ${IPPARAM}
+
+-----------------------------------------------------------
+# ifconfig
+-----------------------------------------------------------
+
+$(ifconfig)
+
+_EOF_
