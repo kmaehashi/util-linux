@@ -1,0 +1,124 @@
+#!/usr/bin/perl -w --
+
+#================================================
+# smbgfs-quota
+# get quota command for Samba 3.x + GFS
+# @version 2008/11/11
+# @author Kenichi Maehashi
+#================================================
+
+use strict;
+use warnings;
+
+$ENV{'PATH'} = ''; # untaint
+
+############################################
+### CONSTANTS
+## gfs_quota command
+my $GFS_QUOTA = '/sbin/gfs_quota';
+
+## command to obtain current directory
+my $CWD = '/bin/pwd';
+
+## Type of Query
+# NOTE: These values may vary in later release of Samba as they differ from the specification in manpage of smb.conf.
+# 	(USER and GROUP must be 1 and 3 respectively.)
+my $TYPE_USER = 2;
+my $TYPE_GROUP = 4;
+
+## Quota Flag
+# NOTE: I'm not sure of the difference between 1 and 2...
+my $FLAG_QUOTA_OFF = 0;
+my $FLAG_QUOTA_ENABLED = 1;
+my $FLAG_QUOTA_ENABLED_ENFORCED = 2;
+
+
+############################################
+### PARAMETERS
+my $directory = $ARGV[0] || '"."';
+my $type = $ARGV[1] || $TYPE_USER;
+my $id = $ARGV[2] || 0;
+
+
+############################################
+### RESULT FIELDS
+my $quota_flag = $FLAG_QUOTA_ENABLED_ENFORCED;
+my $quota_blocks_used = 0;
+my $quota_blocks_softlimit = 0;
+my $quota_blocks_hardlimit = 0;
+my $quota_inodes_used = 0;
+my $quota_inodes_softlimit = 0;
+my $quota_inodes_hardlimit = 0;
+my $quota_bytes_in_block = 4096;
+
+
+############################################
+### PARAM: Directory
+# NOTE: Currently Samba always appears to pass the directory as '"."'.
+if ($directory eq '"."') {
+	$directory = `$CWD`;
+	chomp($directory);
+}
+
+if ($directory =~ /^(\/.*)$/) {
+	$directory = $1; # untaint
+} else {
+	$quota_flag = $FLAG_QUOTA_ENABLED;
+	exit(1);
+}
+
+
+############################################
+### PARAM: ID
+if ($id =~ /^(\d*)$/) {
+	$id = $1; # untaint
+} else {
+	$quota_flag = $FLAG_QUOTA_ENABLED;
+	exit(1);
+}
+
+
+############################################
+### PARAM: Type
+my $gfs_quota_id_opt = '';
+if ($type == $TYPE_USER) {
+	$gfs_quota_id_opt = '-u';
+} elsif ($type == $TYPE_GROUP) {
+	$gfs_quota_id_opt = '-g';
+} else {
+	$quota_flag = $FLAG_QUOTA_ENABLED;
+	exit(0);
+}
+
+
+############################################
+### GET GFS QUOTA RECORD
+my $gfs_quota_record = '';
+my $gfs_quota_cmdline = "$GFS_QUOTA get -b $gfs_quota_id_opt $id -f '$directory' |";
+if ($gfs_quota_cmdline =~ /^(.*)$/) {
+	$gfs_quota_cmdline = $1; # untaint (assuming this cmdline is always safe...)
+	open(IN, $gfs_quota_cmdline);
+	while(<IN>){ $gfs_quota_record = $_; } # get last line of gfs_quota
+	close(IN);
+} else {
+	# This shouldn't happen!
+	$quota_flag = $FLAG_QUOTA_ENABLED;
+	exit(1);
+}
+
+if ($gfs_quota_record !~ /limit: (\d+)\s+warn: (\d+)\s+value: (\d+)/) {
+	$quota_flag = $FLAG_QUOTA_ENABLED;
+        exit(1);
+}
+$quota_blocks_hardlimit = $1;
+$quota_blocks_softlimit = $2;
+$quota_blocks_used = $3;
+
+exit(0);
+
+
+############################################
+### OUTPUT
+END {
+        print "$quota_flag $quota_blocks_used $quota_blocks_softlimit $quota_blocks_hardlimit $quota_inodes_used $quota_inodes_softlimit $quota_inodes_hardlimit $quota_bytes_in_block";
+}

@@ -1,0 +1,20 @@
+#!/bin/bash
+
+PATH=/usr/bin
+
+# simulates gfs_quota command to test smbgfs-quota in non-GFS environment
+# @author Kenichi Maehashi
+
+# 1 MB = 1024 KB = 256 Blocks
+# 1 Block = 4096 B = 4 KB
+
+USER_ID=$4
+USER_HOME=`getent passwd $USER_ID | awk 'BEGIN {FS = ":"}{print $6}'`
+SOFT_LIMIT=0
+HARD_LIMIT=15000
+VALUE=`du -s --block-size 4096 $USER_HOME | awk '{print $1 * 16}'`
+
+RESULT="user    $USER_ID:  limit: $HARD_LIMIT     warn: $SOFT_LIMIT          value: $VALUE"
+
+echo "$RESULT" > /tmp/gfs_quota_result
+echo "$RESULT"
