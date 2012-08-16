@@ -1,0 +1,45 @@
+# IIJ IPv6 PPTP Service
+name IIJ-IPv6-PPTP
+user YYYYYYYY@iij.ad.jp
+password XXXXXXXX
+pty "/usr/sbin/pptp ipv6a.2iij.net --nolaunchpppd"
+
+# Disable IPCP (IPv4)
+noip
+
+# Enable IPv6CP
+ipv6 ::1
+
+# Interface
+ifname ipv6
+lock
+
+# Encryption / Authentication
+require-mppe-128
+require-mschap-v2
+
+# No server-side authentication
+noauth
+
+# Connection / Compression
+noccp
+nopcomp
+noaccomp
+nobsdcomp
+nodeflate
+novj
+novjccomp
+
+# LCP Echo
+lcp-echo-interval 10
+lcp-echo-failure 5
+
+# linkname (PID)
+linkname ipv6
+
+# ipparam (ifcfg-*)
+ipparam ipv6
+
+# Debugging
+#nodetach
+#debug

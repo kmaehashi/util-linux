@@ -1,0 +1,3 @@
+#!/bin/sh
+
+/etc/ppp/ipv6-iij/ipv6-up.local.sh "$@"

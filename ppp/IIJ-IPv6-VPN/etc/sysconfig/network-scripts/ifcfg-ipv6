@@ -1,0 +1,6 @@
+DEVICE=ipv6
+BOOTPROTO=none
+ONBOOT=none
+
+IPV6INIT=yes
+IPV6_AUTOCONF=no

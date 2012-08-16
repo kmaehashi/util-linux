@@ -1,0 +1,70 @@
+#!/bin/sh
+#
+# IPv6 over PPTP
+# @author Kenichi Maehashi
+#
+# chkconfig: - 66 34
+# description: Manages the IPv6 over PPTP session.
+
+# Source function library.
+. /etc/init.d/functions
+
+RETVAL=0
+IPV6_DIR="/etc/ppp/ipv6-iij"
+PIDFILE="/var/run/ppp-ipv6.pid"
+
+start() {
+    echo -n $"Starting IPv6 over PPTP session: "
+    [ -s "${PIDFILE}" ] || ( ${IPV6_DIR}/startup.sh && success || failure )
+    RETVAL=$?
+    echo
+    return $RETVAL
+}
+
+stop() {
+    echo -n $"Stopping IPv6 over PPTP session: "
+    ${IPV6_DIR}/shutdown.sh && success || failure
+    RETVAL=$?
+    echo
+    return $RETVAL
+}
+
+status() {
+    if [ -s "$PIDFILE" ]; then
+        echo $"IPv6 over PPTP is Running"
+        (echo "PID:" && echo "Interface:") | paste -d " " - "${PIDFILE}"
+        RETVAL=$?
+    else
+        echo $"IPv6 over PPTP is Stopped"
+    fi
+    return $RETVAL
+}
+
+# See how we were called.
+case "$1" in
+    start)
+        start
+        RETVAL=$?
+        ;;
+    stop)
+        stop
+        RETVAL=$?
+        ;;
+    restart)
+        stop
+        sleep 1
+        start
+        RETVAL=$?
+        ;;
+    status)
+        status
+        RETVAL=$?
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|restart|status}"
+        RETVAL=1
+        ;;
+esac
+
+exit $RETVAL
+
