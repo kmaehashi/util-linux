@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# Call `cudaRuntimeGetVersion` in the specified library file.
+
 import ctypes
 import sys
 
@@ -9,7 +11,7 @@ funcname = 'cudaRuntimeGetVersion'
 if 2 <= len(sys.argv):
     libfile = sys.argv[1]
 if 3 <= len(sys.argv):
-    libfile = sys.argv[2]
+    funcname = sys.argv[2]
 
 runtime_so = ctypes.CDLL(libfile)
 func = getattr(runtime_so, funcname, None)
