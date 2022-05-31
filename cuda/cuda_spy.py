@@ -20,4 +20,4 @@ func.argtypes = [ctypes.POINTER(ctypes.c_int)]
 version_ptr = ctypes.c_int()
 retval = func(version_ptr)
 assert retval == 0, retval
-print(version_ptr.value)
+print(libfile, ':', version_ptr.value)
